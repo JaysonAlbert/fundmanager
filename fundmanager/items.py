@@ -18,6 +18,7 @@ class Manager(scrapy.Item):
     sex = scrapy.Field()
     picture = scrapy.Field()
     funds = scrapy.Field()
+    best_return = scrapy.Field()
 
 
 class Fund(scrapy.Item):

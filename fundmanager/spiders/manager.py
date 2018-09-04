@@ -9,7 +9,7 @@ import requests
 
 class ManagerSpider(scrapy.Spider):
     name = "manager"
-    allowed_domains = ["http://fundf10.eastmoney.com"]
+    allowed_domains = ["fundf10.eastmoney.com","fund.eastmoney.com"]
     start_urls = ['http://fundf10.eastmoney.com/jjjl_000256.html/']
 
     def start_requests(self):
@@ -38,6 +38,7 @@ class ManagerSpider(scrapy.Spider):
             manager['name'] = intro_list[1]
             manager['appointment_date'] = intro_list[3]
             manager['introduction'] = intro_list[4]
+            manager['url'] = manager_response[i].xpath('./a/@href').extract_first()
 
             try:
                 funds_table_list = funds_response[i].xpath('.//text()').extract()
@@ -53,9 +54,9 @@ class ManagerSpider(scrapy.Spider):
                 funds_table = numpy.array([parse_line(tr) for tr  in funds_response[i].xpath('./table/tbody/tr')])
                 manager_name = funds_response[0].xpath('./div/label/a/text()').extract_first()
 
-            yield manager
-
             manager['funds'] = funds_table[1:, 0].tolist()
+
+            yield scrapy.Request(manager['url'],callback=self.parse_manager,meta={'manager':manager})
 
             for fund_list in funds_table[1:,]:
                 yield Fund(code=fund_list[0],
@@ -68,3 +69,13 @@ class ManagerSpider(scrapy.Spider):
                             average=fund_list[7],
                             rank=fund_list[8],
                             manager=manager_name)
+
+    def parse_manager(self,response):
+        manager = response.meta['manager']
+        info_list = response.xpath('//div[@class="right jd "]').xpath('.//text()').extract()
+        info_list = [i.strip() for i in info_list if i.strip()]
+        manager['appointment_date'] = info_list[3]
+        manager['company'] = info_list[5]
+        manager['fund_asset_size'] = info_list[8] + info_list[9]
+        manager['best_return'] = info_list[12]
+        yield manager
