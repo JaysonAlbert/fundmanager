@@ -32,8 +32,3 @@ class Fund(scrapy.Item):
     average = scrapy.Field()
     rank = scrapy.Field()
     manager = scrapy.Field()
-
-class FundmanagerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
