@@ -2,3 +2,4 @@
 *.json
 *.pyc
 __pycache__
+images

@@ -39,6 +39,7 @@ class ManagerSpider(scrapy.Spider):
             manager['appointment_date'] = intro_list[3]
             manager['introduction'] = intro_list[4]
             manager['url'] = manager_response[i].xpath('./a/@href').extract_first()
+            manager['image_urls'] = manager_response[i].xpath('./a/img/@src').extract()
 
             try:
                 funds_table_list = funds_response[i].xpath('.//text()').extract()

@@ -16,9 +16,11 @@ class Manager(scrapy.Item):
     company = scrapy.Field()
     fund_asset_size = scrapy.Field()
     sex = scrapy.Field()
-    picture = scrapy.Field()
     funds = scrapy.Field()
     best_return = scrapy.Field()
+
+    image_urls = scrapy.Field()
+    picture = scrapy.Field()
 
 
 class Fund(scrapy.Item):
