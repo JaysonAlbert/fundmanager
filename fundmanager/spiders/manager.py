@@ -40,6 +40,7 @@ class ManagerSpider(scrapy.Spider):
             manager['introduction'] = intro_list[4]
             manager['url'] = manager_response[i].xpath('./a/@href').extract_first()
             manager['image_urls'] = manager_response[i].xpath('./a/img/@src').extract()
+            manager['_id'] = manager['url'][-13:-5]
 
             try:
                 funds_table_list = funds_response[i].xpath('.//text()').extract()
@@ -60,7 +61,8 @@ class ManagerSpider(scrapy.Spider):
             yield scrapy.Request(manager['url'],callback=self.parse_manager,meta={'manager':manager})
 
             for fund_list in funds_table[1:,]:
-                yield Fund(code=fund_list[0],
+                yield Fund(_id=manager['_id'] + '#' + fund_list[0],
+                           code=fund_list[0],
                             name=fund_list[1],
                             type=fund_list[2],
                             start_date=fund_list[3],

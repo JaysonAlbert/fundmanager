@@ -9,6 +9,7 @@ import scrapy
 
 
 class Manager(scrapy.Item):
+    _id = scrapy.Field()
     url = scrapy.Field()
     name = scrapy.Field()
     appointment_date = scrapy.Field()
@@ -24,6 +25,7 @@ class Manager(scrapy.Item):
 
 
 class Fund(scrapy.Item):
+    _id = scrapy.Field()
     code = scrapy.Field()
     name = scrapy.Field()
     type = scrapy.Field()

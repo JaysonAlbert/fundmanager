@@ -6,6 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import pymongo
+from pymongo.errors import DuplicateKeyError
 from fundmanager.items import *
 
 
@@ -35,8 +36,11 @@ class MongoPipeline(object):
         self.client.close()
 
     def process_item(self, item, spider):
-        if isinstance(item,Manager):
-            self.db[self.collection_name['manager']].insert(dict(item))
-        elif isinstance(item,Fund):
-            self.db[self.collection_name['fund']].insert(dict(item))
+        try:
+            if isinstance(item,Manager):
+                self.db[self.collection_name['manager']].insert(dict(item))
+            elif isinstance(item,Fund):
+                self.db[self.collection_name['fund']].insert(dict(item))
+        except DuplicateKeyError as e:
+            pass
         return item
