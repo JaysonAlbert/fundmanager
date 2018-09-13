@@ -15,7 +15,7 @@ class CompanySpider(scrapy.Spider):
 
     def parse(self, response):
         list_item = response.css('.sencond-block').xpath('./a[@href]')
-        for item in list_item[:5]:
+        for item in list_item:
             company = Company()
             company['url'] = response.urljoin(item.xpath('./@href').extract_first())
             company['short_name'] = item.xpath('./text()').extract_first()
