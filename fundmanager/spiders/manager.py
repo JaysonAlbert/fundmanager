@@ -25,6 +25,8 @@ class ManagerSpider(scrapy.Spider):
         manager_response = response.css('.jl_intro')
         funds_response = response.css('.jl_office')
 
+        company = response.css('.bs_gl').xpath('./p/label/a[@href]/text()').extract()[1]
+
         num = len(manager_response)
         if isinstance(manager_response,SelectorList):
             assert num == len(funds_response)
@@ -47,9 +49,6 @@ class ManagerSpider(scrapy.Spider):
                 funds_table = numpy.array(funds_table_list[2:]).reshape(-1, 9)
                 manager_name = funds_table_list[0]
             except Exception:
-                # funds_table_list = []
-                # for tr in funds_response[i].xpath('./table/tbody/tr'):
-                #     row = [item.xpath('.//text()').extract_first() for item in tr.xpath('./td')]
                 def parse_line(tr):
                     return [item.xpath('.//text()').extract_first() for item in tr.xpath('./td')]
 
@@ -71,7 +70,8 @@ class ManagerSpider(scrapy.Spider):
                             duty_return=fund_list[6],
                             average=fund_list[7],
                             rank=fund_list[8],
-                            manager=manager_name)
+                            manager=manager_name,
+                           company=company)
 
     def parse_manager(self,response):
         manager = response.meta['manager']

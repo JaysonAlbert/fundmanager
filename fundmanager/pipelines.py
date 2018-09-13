@@ -12,10 +12,12 @@ from fundmanager.items import *
 
 class MongoPipeline(object):
 
-    collection_name = {
-        'fund':'fund',
-        'manager':'manager'
-    }
+    saved_collection = [
+        'manager',
+        'fund',
+        'company',
+        'fundscale',
+    ]
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
@@ -37,10 +39,9 @@ class MongoPipeline(object):
 
     def process_item(self, item, spider):
         try:
-            if isinstance(item,Manager):
-                self.db[self.collection_name['manager']].insert(dict(item))
-            elif isinstance(item,Fund):
-                self.db[self.collection_name['fund']].insert(dict(item))
+            collection = item.get_collection_name()
+            if collection in self.saved_collection:
+                self.db[collection].insert(dict(item))
         except DuplicateKeyError as e:
             pass
         return item

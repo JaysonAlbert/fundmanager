@@ -23,6 +23,10 @@ class Manager(scrapy.Item):
     image_urls = scrapy.Field()
     picture = scrapy.Field()
 
+    @staticmethod
+    def get_collection_name():
+        return 'manager'
+
 
 class Fund(scrapy.Item):
     _id = scrapy.Field()
@@ -36,3 +40,58 @@ class Fund(scrapy.Item):
     average = scrapy.Field()
     rank = scrapy.Field()
     manager = scrapy.Field()
+    company = scrapy.Field()
+
+    @staticmethod
+    def get_collection_name():
+        return 'fund'
+
+
+class Company(scrapy.Item):
+    _id = scrapy.Field()
+    short_name = scrapy.Field()
+    name = scrapy.Field()
+    url = scrapy.Field()
+    asset_size = scrapy.Field()
+    fund_num = scrapy.Field()
+    manager_num = scrapy.Field()
+    establishment_date = scrapy.Field()
+    company_nature = scrapy.Field()
+    east_money_rank = scrapy.Field()
+    location = scrapy.Field()
+    manager = scrapy.Field()
+    website = scrapy.Field()
+    phone = scrapy.Field()
+
+    @staticmethod
+    def get_collection_name():
+        return 'company'
+
+
+class FundScale(scrapy.Item):
+    _id = scrapy.Field()
+    all = scrapy.Field()
+    stock = scrapy.Field()
+    hybrid = scrapy.Field()
+    bond = scrapy.Field()
+    index = scrapy.Field()
+    currency = scrapy.Field()
+    investment_product = scrapy.Field()
+    qdii = scrapy.Field()
+    capital_preservation = scrapy.Field()
+
+    @staticmethod
+    def get_collection_name():
+        return 'fundscale'
+
+
+FUNDTYPE = {
+    '11': 'index',
+    '25': 'stock',
+    '27': 'hybrid',
+    '31': 'bond',
+    '35': 'currency',
+    '36': 'investment_product',
+    '37': 'qdii',
+    '38': 'capital_preservation',
+}
