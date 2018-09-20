@@ -70,19 +70,14 @@ class Company(scrapy.Item):
 
 class FundScale(scrapy.Item):
     _id = scrapy.Field()
-    all = scrapy.Field()
-    stock = scrapy.Field()
-    hybrid = scrapy.Field()
-    bond = scrapy.Field()
-    index = scrapy.Field()
-    currency = scrapy.Field()
-    investment_product = scrapy.Field()
-    qdii = scrapy.Field()
-    capital_preservation = scrapy.Field()
+    company = scrapy.Field()
+    fund_type = scrapy.Field()
+    x = scrapy.Field()
+    y = scrapy.Field()
 
     @staticmethod
     def get_collection_name():
-        return 'fundscale'
+        return 'scale'
 
 
 FUNDTYPE = {

@@ -55,16 +55,12 @@ class CompanySpider(scrapy.Spider):
 
         scale_curve = response.css("#gmbdTags li::attr(data-value)").extract()
 
-        fund_scale = FundScale()
-        fund_scale['_id'] = company['_id']
         for code in scale_curve:
+            fund_scale = FundScale()
+            fund_scale['_id'] = company['_id']
             url = self.get_url_by_company_and_code(company['_id'],code)
             data = requests.get(url).json()
-            try:
-                fund_scale[FUNDTYPE[code]] = data
-            except KeyError as e:
-                fund_scale['all'] = data
-        yield fund_scale
+            yield FundScale(company=company['_id'],fund_type=data['fundType'],x=data['x'],y=data['y'])
 
     def get_url_by_company_and_code(self, company, code):
         if not code:
