@@ -75,6 +75,8 @@ ITEM_PIPELINES = {
    'fundmanager.pipelines.MongoPipeline': 300,
 }
 
+LOG_LEVEL = 'WARN'
+
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
 #AUTOTHROTTLE_ENABLED = True

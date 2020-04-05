@@ -1,46 +1,92 @@
-import pymongo
-
 from pymongo import MongoClient
+import pandas as pd
+import timeit
 
-client = MongoClient('localhost', 27017)
+# Requires the PyMongo package.
+# https://api.mongodb.com/python/current
 
-db = client['fundmanager']
-
-agr = [
+client = MongoClient('mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false')
+result = client['fundmanager']['assets'].aggregate([
     {
-        '$project': {
-            'funds': True,
-            'published_date': True,
-            '_id': False
+        '$match': {
+            'published_date': {
+                '$eq': '2019-12-31'
+            }
         }
     }, {
-        '$unwind': {
-            'path': '$funds'
-        }
-    }, {
-        '$project': {
-            'code': {
-                '$arrayElemAt': [
-                    '$funds', 0
-                ]
+        '$lookup': {
+            'from': 'fund',
+            'let': {
+                'code': '$code'
             },
-            'value': {
-                '$arrayElemAt': [
-                    '$funds', 4
+            'pipeline': [
+                {
+                    '$match': {
+                        '$expr': {
+                            '$eq': [
+                                '$$code', '$code'
+                            ]
+                        }
+                    }
+                }, {
+                    '$project': {
+                        'company': 1,
+                        'name': 1,
+                        'type': 1,
+                        '_id': 0
+                    }
+                }
+            ],
+            'as': 'fundInfo'
+        }
+    }, {
+        '$replaceRoot': {
+            'newRoot': {
+                '$mergeObjects': [
+                    '$$ROOT', {
+                        '$arrayElemAt': [
+                            '$fundInfo', 0
+                        ]
+                    }
                 ]
             }
         }
+    }, {
+        '$match': {
+            '$or': [
+                {
+                    'type': {
+                        '$eq': '股票型'
+                    }
+                }, {
+                    'type': {
+                        '$eq': '混合型'
+                    }
+                }
+            ]
+        }
+    }, {
+        '$group': {
+            '_id': '$company',
+            'count': {
+                '$sum': 1
+            },
+            'avg': {
+                '$avg': '$head_shares'
+            }
+        }
+    }, {
+        '$sort': {
+            'count': -1
+        }
+    }, {
+        '$limit': 20
     }
-]
+])
 
 
-def process(record):
-    for i in record.funds:
-        yield i
+def cc():
+    print(pd.DataFrame(result))
 
 
-records = (record['funds'] for record in  db.assets.find({'published_date': "2019-12-31"}) if record['published_date'] == '2019-12-31')
-
-lines = ([line for line in pack if ',' in line[4]] for pack in records)
-
-print(next(lines))
+cc()

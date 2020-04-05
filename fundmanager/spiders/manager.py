@@ -4,6 +4,8 @@ from scrapy.selector import SelectorList
 from fundmanager.items import Manager, Fund, Errors
 import numpy
 import requests
+import logging
+from tqdm import tqdm
 
 
 class ManagerSpider(scrapy.Spider):
@@ -16,7 +18,7 @@ class ManagerSpider(scrapy.Spider):
         code_list = eval(res.content.decode('utf-8').split('=')[1][:-1])
         code_list = numpy.array(code_list)[:,0]
 
-        for i in code_list:
+        for i in tqdm(code_list):
             url = "http://fundf10.eastmoney.com/jjjl_{}.html".format(i)
             yield scrapy.Request(url,callback=self.parse)
 
@@ -27,10 +29,6 @@ class ManagerSpider(scrapy.Spider):
         try:
             company = response.css('.bs_gl').xpath('./p/label/a[@href]/text()').extract()[-1]
         except Exception as e:
-            error = Errors()
-            error['_id'] = response.url
-            error['name'] = self.name
-            yield error
             return
 
         num = len(manager_response)
@@ -47,20 +45,24 @@ class ManagerSpider(scrapy.Spider):
             manager['appointment_date'] = intro_list[3]
             manager['introduction'] = intro_list[4]
             manager['url'] = 'http:' + manager_response[i].xpath('./a/@href').extract_first()
-            manager['image_urls'] = manager_response[i].xpath('./a/img/@src').extract()
+            img_url = manager_response[i].xpath('./a/img/@src').extract()
+            if not 'http' in img_url[0]:
+                img_url = ['http:' + img_url[0]]
+            manager['image_urls'] = img_url
             manager['_id'] = manager['url'][-13:-5]
 
             try:
-                funds_table = numpy.array(funds_response[i].xpath('.//tbody//text()').extract()).reshape((-1, 9))
+                funds_table = [[td.xpath('.//text()').extract_first() for td in tr.xpath('.//td')] for tr in funds_response[i].xpath('.//tbody//tr')]
                 manager_name = funds_response[i].css('.jloff_tit a::text').extract_first()
-            except Exception:
+            except Exception as e:
+                logging.error("获取基金信息失败:{}".format(response.url))
                 def parse_line(tr):
                     return [item.xpath('.//text()').extract_first() for item in tr.xpath('./td')]
 
                 funds_table = numpy.array([parse_line(tr) for tr  in funds_response[i].xpath('./table/tbody/tr')])
                 manager_name = funds_response[i].xpath('./div/label/a/text()').extract_first()
 
-            manager['funds'] = funds_table[:, 0].tolist()
+            manager['funds'] = numpy.array(funds_table)[:, 0].tolist()
 
             yield scrapy.Request(manager['url'],callback=self.parse_manager,meta={'manager':manager})
 
@@ -84,6 +86,6 @@ class ManagerSpider(scrapy.Spider):
         info_list = [i.strip() for i in info_list if i.strip()]
         manager['appointment_date'] = info_list[3]
         manager['company'] = info_list[5]
-        manager['fund_asset_size'] = info_list[8] + info_list[9]
-        manager['best_return'] = info_list[12]
+        manager['fund_asset_size'] = ''.join(response.xpath('//div[@class="right jd "]//span[@class="numtext"]')[0].xpath('.//text()').extract())
+        manager['best_return'] = ''.join(response.xpath('//div[@class="right jd "]//span[@class="numtext"]')[1].xpath('.//text()').extract())
         yield manager
