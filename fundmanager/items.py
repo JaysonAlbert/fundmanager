@@ -7,6 +7,7 @@
 
 import scrapy
 
+# 新增Item时，若需要保存到Mongodb中，需在pipelines中更新saved_collection
 
 class Manager(scrapy.Item):
     _id = scrapy.Field()
@@ -78,6 +79,29 @@ class FundScale(scrapy.Item):
     @staticmethod
     def get_collection_name():
         return 'scale'
+
+
+class FundAssets(scrapy.Item):
+    _id = scrapy.Field()
+    code = scrapy.Field()
+    published_date = scrapy.Field()
+    funds = scrapy.Field()
+    head_shares = scrapy.Field()
+    head_market_value = scrapy.Field()
+    market_value = scrapy.Field()
+
+    @staticmethod
+    def get_collection_name():
+        return 'assets'
+
+
+class Errors(scrapy.Item):
+    _id = scrapy.Field()
+    name = scrapy.Field()
+
+    @staticmethod
+    def get_collection_name():
+        return 'errors'
 
 
 FUNDTYPE = {

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy.selector import SelectorList
-from scrapy.shell import inspect_response
 from fundmanager.items import Manager, Fund
 import numpy
 import requests
@@ -25,7 +24,7 @@ class ManagerSpider(scrapy.Spider):
         manager_response = response.css('.jl_intro')
         funds_response = response.css('.jl_office')
 
-        company = response.css('.bs_gl').xpath('./p/label/a[@href]/text()').extract()[1]
+        company = response.css('.bs_gl').xpath('./p/label/a[@href]/text()').extract()[-1]
 
         num = len(manager_response)
         if isinstance(manager_response,SelectorList):
@@ -40,7 +39,7 @@ class ManagerSpider(scrapy.Spider):
             manager['name'] = intro_list[1]
             manager['appointment_date'] = intro_list[3]
             manager['introduction'] = intro_list[4]
-            manager['url'] = manager_response[i].xpath('./a/@href').extract_first()
+            manager['url'] = 'http:' + manager_response[i].xpath('./a/@href').extract_first()
             manager['image_urls'] = manager_response[i].xpath('./a/img/@src').extract()
             manager['_id'] = manager['url'][-13:-5]
 

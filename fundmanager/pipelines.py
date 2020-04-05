@@ -17,6 +17,8 @@ class MongoPipeline(object):
         'fund',
         'company',
         'scale',
+        'assets',
+        'errors'
     ]
 
     def __init__(self, mongo_uri, mongo_db):

@@ -1,5 +1,4 @@
 import scrapy
-from scrapy.shell import inspect_response
 
 
 from fundmanager.items import Company, FundScale, FUNDTYPE
