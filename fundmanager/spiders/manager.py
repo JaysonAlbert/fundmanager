@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy.selector import SelectorList
-from fundmanager.items import Manager, Fund
+from fundmanager.items import Manager, Fund, Errors
 import numpy
 import requests
 
@@ -24,7 +24,14 @@ class ManagerSpider(scrapy.Spider):
         manager_response = response.css('.jl_intro')
         funds_response = response.css('.jl_office')
 
-        company = response.css('.bs_gl').xpath('./p/label/a[@href]/text()').extract()[-1]
+        try:
+            company = response.css('.bs_gl').xpath('./p/label/a[@href]/text()').extract()[-1]
+        except Exception as e:
+            error = Errors()
+            error['_id'] = response.url
+            error['name'] = self.name
+            yield error
+            return
 
         num = len(manager_response)
         if isinstance(manager_response,SelectorList):
@@ -44,21 +51,20 @@ class ManagerSpider(scrapy.Spider):
             manager['_id'] = manager['url'][-13:-5]
 
             try:
-                funds_table_list = funds_response[i].xpath('.//text()').extract()
-                funds_table = numpy.array(funds_table_list[2:]).reshape(-1, 9)
-                manager_name = funds_table_list[0]
+                funds_table = numpy.array(funds_response[i].xpath('.//tbody//text()').extract()).reshape((-1, 9))
+                manager_name = funds_response[i].css('.jloff_tit a::text').extract_first()
             except Exception:
                 def parse_line(tr):
                     return [item.xpath('.//text()').extract_first() for item in tr.xpath('./td')]
 
                 funds_table = numpy.array([parse_line(tr) for tr  in funds_response[i].xpath('./table/tbody/tr')])
-                manager_name = funds_response[0].xpath('./div/label/a/text()').extract_first()
+                manager_name = funds_response[i].xpath('./div/label/a/text()').extract_first()
 
-            manager['funds'] = funds_table[1:, 0].tolist()
+            manager['funds'] = funds_table[:, 0].tolist()
 
             yield scrapy.Request(manager['url'],callback=self.parse_manager,meta={'manager':manager})
 
-            for fund_list in funds_table[1:,]:
+            for fund_list in funds_table:
                 yield Fund(_id=manager['_id'] + '#' + fund_list[0],
                            code=fund_list[0],
                             name=fund_list[1],
