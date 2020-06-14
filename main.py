@@ -11,5 +11,5 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # 调用execute()函数执行scarpy的命令 scary crawl 爬虫文件名字
 execute(['scarpy', 'crawl', 'manager','-o','text.json'])
-# execute(['scarpy', 'crawl', 'fund-details','-o','text.json'])
-# execute(['scarpy', 'crawl', 'company','-o','text.json'])
+execute(['scarpy', 'crawl', 'fund-details','-o','text.json'])
+execute(['scarpy', 'crawl', 'company','-o','text.json'])
