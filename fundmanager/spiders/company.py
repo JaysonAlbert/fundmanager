@@ -4,13 +4,14 @@ import scrapy
 from fundmanager.items import Company, FundScale, FUNDTYPE
 import functools
 import requests
+from scrapy_redis.spiders import RedisSpider
 
 
-class CompanySpider(scrapy.Spider):
+class CompanySpider(RedisSpider):
     name = 'company'
 
     allowed_domains = ["fundf10.eastmoney.com", "fund.eastmoney.com"]
-    start_urls = ['http://fund.eastmoney.com/company/default.html']
+    # start_urls = ['http://fund.eastmoney.com/company/default.html']
 
     def parse(self, response):
         list_item = response.css('.sencond-block').xpath('./a[@href]')
@@ -18,9 +19,10 @@ class CompanySpider(scrapy.Spider):
             company = Company()
             company['url'] = response.urljoin(item.xpath('./@href').extract_first())
             company['short_name'] = item.xpath('./text()').extract_first()
-            yield scrapy.Request(company['url'], functools.partial(self.parse_details, company))
+            yield scrapy.Request(company['url'], self.parse_details, meta={'company': company})
 
-    def parse_details(self, company, response):
+    def parse_details(self, response):
+        company = response.meta['company']
         basic_info = response.css('.common-basic-info')
         company['_id'] = response.url.split('/')[-1].split('.')[0]
         company['name'] = basic_info.xpath('./div[1]/div[1]/p[1]/text()').extract_first()

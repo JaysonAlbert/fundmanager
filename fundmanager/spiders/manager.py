@@ -1,26 +1,25 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from scrapy.selector import SelectorList
-from fundmanager.items import Manager, Fund, Errors
+from fundmanager.items import Manager, Fund
 import numpy
-import requests
 import logging
-from tqdm import tqdm
+from scrapy_redis.spiders import RedisSpider
 
 
-class ManagerSpider(scrapy.Spider):
+class ManagerSpider(RedisSpider):
     name = "manager"
     allowed_domains = ["fundf10.eastmoney.com","fund.eastmoney.com"]
-    start_urls = ['http://fundf10.eastmoney.com/jjjl_000256.html/']
+    # start_urls = ['http://fundf10.eastmoney.com/jjjl_000256.html/']
 
-    def start_requests(self):
-        res = requests.get("http://fund.eastmoney.com/js/fundcode_search.js")
-        code_list = eval(res.content.decode('utf-8').split('=')[1][:-1])
-        code_list = numpy.array(code_list)[:,0]
-
-        for i in tqdm(code_list):
-            url = "http://fundf10.eastmoney.com/jjjl_{}.html".format(i)
-            yield scrapy.Request(url,callback=self.parse)
+    # def start_requests(self):
+    #     res = requests.get("http://fund.eastmoney.com/js/fundcode_search.js")
+    #     code_list = eval(res.content.decode('utf-8').split('=')[1][:-1])
+    #     code_list = numpy.array(code_list)[:,0]
+    #
+    #     for i in tqdm(code_list):
+    #         url = "http://fundf10.eastmoney.com/jjjl_{}.html".format(i)
+    #         yield scrapy.Request(url,callback=self.parse)
 
     def parse(self, response):
         manager_response = response.css('.jl_intro')

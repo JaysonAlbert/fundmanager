@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from fundmanager.spiders.utils import code_list
 import numpy as np
 from fundmanager.items import FundAssets, Errors
+from scrapy_redis.spiders import RedisSpider
+from urllib.parse import parse_qs, urlparse
 
 
 def sum_as_float(a):
@@ -15,27 +16,25 @@ def preprocess(data):
     return data
 
 
-class FundDetailsSpider(scrapy.Spider):
+class FundDetailsSpider(RedisSpider):
     name = "fund-details"
     allowed_domains = ["fundf10.eastmoney.com", "fund.eastmoney.com"]
-    start_urls = ['http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code=070002&topline=10&year=2017']
+    # start_urls = ['http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code=070002&topline=10&year=2017']
     url_format = "http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=jjcc&code={}&topline=10&year={}"
-    start_year = "2019"  # 起始年份
+    # start_year = "2019"  # 起始年份
 
-    def start_requests(self):
-        fund_codes = code_list()
-
-        for code in fund_codes:
-            url = self.url_format.format(code, self.start_year)
-            yield scrapy.Request(url, callback=self.parse,
-                                 meta={'code': code, 'date': self.start_year, 'recurse': True})
+    # def start_requests(self):
+    #     fund_codes = code_list()
+    #
+    #     for code in fund_codes:
+    #         url = self.url_format.format(code, self.start_year)
+    #         yield scrapy.Request(url, callback=self.parse)
 
         # for url in self.start_urls:
         #     yield scrapy.Request(url, callback=self.parse, meta={'code':'070002','date': self.start_year, 'recurse': True})
 
     def parse(self, response):
-        code = response.meta['code']
-        cur_date = response.meta['date']
+        code = parse_qs(urlparse(response.url).query)['code'][0]
 
         for box in response.css("div.box"):
             publish_date = box.css('label>font.px12::text').extract_first()
@@ -56,20 +55,15 @@ class FundDetailsSpider(scrapy.Spider):
 
                 yield asset
 
-                # 如果需要爬取子页面
-                if response.meta['recurse']:
-                    try:
-                        for date in ''.join(response.xpath("//body/text()").extract()).split('[')[1].split(']')[0].split(','):
-                            if cur_date == date:
-                                continue
-                            url = self.url_format.format(response.meta['code'], date)
-                            yield scrapy.Request(url, callback=self.parse,
-                                                 meta={'code': code, 'date': date, 'recurse': False})
-                    except Exception as e:
-                        error = Errors()
-                        error['_id'] = response.url
-                        error['name'] = self.name
-                        yield error
+                try:
+                    for date in ''.join(response.xpath("//body/text()").extract()).split('[')[1].split(']')[0].split(','):
+                        url = self.url_format.format(response.meta['code'], date)
+                        yield scrapy.Request(url, callback=self.parse)
+                except Exception as e:
+                    error = Errors()
+                    error['_id'] = response.url
+                    error['name'] = self.name
+                    yield error
             except ValueError as e:
                 error = Errors()
                 error['_id'] = response.url

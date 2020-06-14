@@ -72,10 +72,11 @@ IMAGES_RESULT_FIELD = 'picture'
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'scrapy.pipelines.images.ImagesPipeline': 1,
+    'scrapy_redis.pipelines.RedisPipeline': 299,
    'fundmanager.pipelines.MongoPipeline': 300,
 }
 
-LOG_LEVEL = 'WARN'
+LOG_LEVEL = 'INFO'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -97,3 +98,20 @@ LOG_LEVEL = 'WARN'
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+
+# redis configure
+from rediscluster import RedisCluster
+
+SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+
+DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+
+REDIS_START_URLS_AS_SET = True
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+
+REDIS_PARAMS = {}
+REDIS_PARAMS['redis_cls'] = RedisCluster
+# REDIS_PARAMS['decode_responses'] = True
