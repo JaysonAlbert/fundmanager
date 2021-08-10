@@ -1,0 +1,57 @@
+version: '3.2'
+services:
+  redis:
+    image: "redis:alpine"
+    command: --cluster-enabled yes --appendonly yes
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: "mongo:bionic"
+    ports:
+    - "27017:27017"
+  elasticsearch:
+    image: "elasticsearch:6.8.3"
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+
+  tomcat:
+    image: "tomcat:9.0"
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/www/webapps:/usr/local/tomcat/webapps/
+
+  mysql:
+    image: "mysql"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+
+    ports:
+      - target: 9094
+        published: 9094
+        protocol: tcp
+        mode: host
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://192.168.0.115:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LOG4J_ROOTLOGGER: INFO, stdout, kafkaAppender
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
