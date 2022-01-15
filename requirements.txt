@@ -4,4 +4,4 @@ pandas
 redis-py-cluster
 scrapy
 numpy
-git+https://github.com/JaysonAlbert/scrapy-redis.git
+scrapy-redis

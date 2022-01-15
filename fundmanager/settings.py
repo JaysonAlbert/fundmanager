@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'fundmanager.spiders'
 #USER_AGENT = 'fundmanager (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -100,12 +100,12 @@ LOG_LEVEL = 'INFO'
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-# redis configure
-from rediscluster import RedisCluster
 
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+
+STATS_CLASS = "scrapy_redis.stats.RedisStatsCollector"
 
 REDIS_START_URLS_AS_SET = True
 CLEAR_FINGER_PRINTS = False
@@ -113,6 +113,4 @@ CLEAR_FINGER_PRINTS = False
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 
-REDIS_PARAMS = {}
-REDIS_PARAMS['redis_cls'] = RedisCluster
 # REDIS_PARAMS['decode_responses'] = True
