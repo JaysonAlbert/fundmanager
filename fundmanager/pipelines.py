@@ -43,7 +43,7 @@ class MongoPipeline(object):
         try:
             collection = item.get_collection_name()
             if collection in self.saved_collection:
-                self.db[collection].insert(dict(item))
+                self.db[collection].insert_one(dict(item))
         except DuplicateKeyError as e:
             pass
         return item

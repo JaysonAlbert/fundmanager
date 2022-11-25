@@ -1,7 +1,7 @@
-from rediscluster import RedisCluster
+import redis
 from fundmanager.spiders.utils import code_list
 
-rc = RedisCluster('127.0.0.1', '6379')
+rc = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 def feed_manager_url():

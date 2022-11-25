@@ -2,7 +2,7 @@ version: '3.2'
 services:
   redis:
     image: "redis:alpine"
-    command: --cluster-enabled yes --appendonly yes
+    command: --appendonly yes
     ports:
       - "6379:6379"
 
