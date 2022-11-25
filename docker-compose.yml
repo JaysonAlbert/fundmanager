@@ -15,6 +15,18 @@ services:
     ports:
     - "9200:9200"
     - "9300:9300"
+  logstash:
+    image: logstash:6.4.0
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf #挂载logstash的配置文件
+      - /opt/logs:/opt/logs
+    depends_on:
+      - elasticsearch #kibana在elasticsearch启动之后再启动
+    links:
+      - elasticsearch:es #可以用es这个域名访问elasticsearch服务
+    ports:
+      - 4560:4560
 
   kibana:
       image: kibana:6.4.0
@@ -27,7 +39,7 @@ services:
         - "elasticsearch.hosts=http://es:9200" #设置访问elasticsearch的地址
       ports:
         - 5601:5601
-        
+
   tomcat:
     image: "tomcat:9.0"
     ports:
