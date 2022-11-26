@@ -27,6 +27,7 @@ services:
       - elasticsearch:es #可以用es这个域名访问elasticsearch服务
     ports:
       - 4560:4560
+      - 5044:5044
 
   kibana:
       image: kibana:6.4.0

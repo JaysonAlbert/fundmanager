@@ -2,35 +2,26 @@ filebeat.inputs:
   - type: log
     enabled: true
     fields:
-      type: "all_logs"
+      type: "all-logs"
+      system: "csp"
     paths:
-      - /opt/logs/csp/csp-all.log  # Absolute path of the log file
+      - /opt/logs/csp/csp-all*  # Absolute path of the log file
 
   - type: log
     enabled: true
     fields:
-      type: "error_logs"
+      type: "error-logs"
+      system: "csp"
     paths:
-      - /opt/logs/csp/csp-error.log  # Absolute path of the log file
+      - /opt/logs/csp/csp-error*  # Absolute path of the log file
 
   - type: log
     enabled: true
     fields:
-      type: "bee_logs"
+      type: "bee-logs"
+      system: "csp"
     paths:
-      - /opt/logs/csp/csp-bee.log  # Absolute path of the log file
-
-
-#
-#setup.ilm.enabled: false
-#setup.template.name: "csp-%{[fields.type]:other}"
-#setup.template.pattern: "csp-%{[fields.type]:other}-*"
-
-
-#output.elasticsearch:
-#  hosts: ["localhost:9200"]
-#  protocol: "http"
-#  index: "csp-%{[fields.type]:other}-%{+yyyy.MM.dd}"
+      - /opt/logs/csp/csp-bee*  # Absolute path of the log file
 
 output.logstash:
     hosts: ["localhost:5044"]  # Output is now pointing to Logstash
