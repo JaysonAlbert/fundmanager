@@ -2,8 +2,8 @@ filebeat.inputs:
   - type: log
     enabled: true
     multiline.type: pattern
-    multiline.pattern: '^\['
-    multiline.negate: true
+    multiline.pattern: '^[[:space:]]'
+    multiline.negate: false
     multiline.match: after
     fields:
       type: "all-logs"
@@ -14,8 +14,8 @@ filebeat.inputs:
   - type: log
     enabled: true
     multiline.type: pattern
-    multiline.pattern: '^\['
-    multiline.negate: true
+    multiline.pattern: '^[[:space:]]'
+    multiline.negate: false
     multiline.match: after
     fields:
       type: "error-logs"
@@ -26,8 +26,8 @@ filebeat.inputs:
   - type: log
     enabled: true
     multiline.type: pattern
-    multiline.pattern: '^\['
-    multiline.negate: true
+    multiline.pattern: '^[[:space:]]'
+    multiline.negate: false
     multiline.match: after
     fields:
       type: "bee-logs"
